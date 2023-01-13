@@ -7,32 +7,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopService.Data;
 using ShopService.Models;
+using ShopService.Services.Interfaces;
 
 namespace ShopService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("Product")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ShopServiceContext _context;
+        private readonly IProductService _service;
 
-        public ProductsController(ShopServiceContext context)
+        public ProductsController(IProductService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
         {
-            return await _context.Product.ToListAsync();
+            return await _service.GetProductsAsync();
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(Guid id)
         {
-            var product = await _context.Product.FindAsync(id);
+            var product = await _service.GetProductAsync(id);
 
             if (product == null)
             {
@@ -52,23 +53,7 @@ namespace ShopService.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _service.UpdateProductAsync(product);
 
             return NoContent();
         }
@@ -78,31 +63,22 @@ namespace ShopService.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Product.Add(product);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            return await _service.SaveProductAsync(product);
         }
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            var product = await _context.Product.FindAsync(id);
+            var product = await _service.GetProductAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Product.Remove(product);
-            await _context.SaveChangesAsync();
+            await _service.DeleteProductAsync(id);
 
             return NoContent();
-        }
-
-        private bool ProductExists(Guid id)
-        {
-            return _context.Product.Any(e => e.Id == id);
         }
     }
 }
