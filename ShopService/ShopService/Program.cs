@@ -22,6 +22,8 @@ builder.Services.AddSingleton<IMessagingService, MessagingService>();
 
 builder.Services.AddSingleton<IProductService, ProductService>();
 builder.Services.AddSingleton<IMaterialService, MaterialService>();
+builder.Services.AddSingleton<IOrderService, OrderService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,6 +47,7 @@ app.MapControllers();
 
 app.Services.GetRequiredService<IProductService>().SubscribeToGlobal();
 app.Services.GetRequiredService<IMaterialService>().SubscribeToGlobal();
+app.Services.GetRequiredService<IOrderService>().SubscribeToGlobal();
 
 
 app.Run();
