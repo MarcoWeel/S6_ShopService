@@ -1,4 +1,17 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MySqlConnector;
+using ShopService.Data;
+using ShopService.Controllers;
 var builder = WebApplication.CreateBuilder(args);
+
+var conStrBuilder = new MySqlConnectionStringBuilder(
+    builder.Configuration.GetConnectionString("DBConnectionString"));
+var connection = conStrBuilder.ConnectionString;
+
+builder.Services.AddDbContext<ShopServiceContext>(options =>
+    options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
+
 
 // Add services to the container.
 
@@ -21,5 +34,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
