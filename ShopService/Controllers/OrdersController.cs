@@ -11,72 +11,72 @@ using ShopService.Services.Interfaces;
 
 namespace ShopService.Controllers
 {
-    [Route("Material")]
+    [Route("Order")]
     [ApiController]
-    public class MaterialController : ControllerBase
+    public class OrdersController : ControllerBase
     {
-        private readonly IMaterialService _service;
+        private readonly IOrderService _service;
 
-        public MaterialController(IMaterialService service)
+        public OrdersController(IOrderService service)
         {
             _service = service;
         }
 
-        // GET: api/Materials
+        // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Material>>> GetMaterial()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
         {
-            return await _service.GetMaterialsAsync();
+            return await _service.GetOrdersAsync();
         }
 
-        // GET: api/Materials/5
+        // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Material>> GetMaterial(Guid id)
+        public async Task<ActionResult<Order>> GetOrder(Guid id)
         {
-            var material = await _service.GetMaterialAsync(id);
+            var order = await _service.GetOrderAsync(id);
 
-            if (material == null)
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return material;
+            return order;
         }
 
-        // PUT: api/Materials/5
+        // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMaterial(Guid id, Material material)
+        public async Task<IActionResult> PutOrder(Guid id, Order order)
         {
-            if (id != material.Id)
+            if (id != order.Id)
             {
                 return BadRequest();
             }
 
-            await _service.UpdateMaterialAsync(material);
+            await _service.UpdateOrderAsync(order);
 
             return NoContent();
         }
 
-        // POST: api/Materials
+        // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Material>> PostMaterial(Material material)
+        public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            return await _service.SaveMaterialAsync(material);
+            return await _service.SaveOrderAsync(order);
         }
 
-        // DELETE: api/Materials/5
+        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMaterial(Guid id)
+        public async Task<IActionResult> DeleteOrder(Guid id)
         {
-            var material = await _service.GetMaterialAsync(id);
-            if (material == null)
+            var order = await _service.GetOrderAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            await _service.DeleteMaterialAsync(id);
+            await _service.DeleteOrderAsync(id);
 
             return NoContent();
         }
