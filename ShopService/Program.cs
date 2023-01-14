@@ -8,6 +8,8 @@ using ShopService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", true);
+
 var conStrBuilder = new MySqlConnectionStringBuilder(
     builder.Configuration.GetConnectionString("DBConnectionString"));
 var connection = conStrBuilder.ConnectionString;
