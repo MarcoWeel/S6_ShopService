@@ -4,13 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShopService.Models
 {
-    public class Order
+    public class ProductMapping
     {
         [Column(TypeName = "char(36)")]
         [Key]
         public Guid Id { get; set; }
-        public Guid UserGuid { get; set; }
-        public double TotalPrice { get; set; }
-        public List<ProductMapping> Products { get; set; }
+        public Guid ProductId { get; set; }
     }
 }

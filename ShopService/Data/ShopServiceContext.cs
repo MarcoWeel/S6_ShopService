@@ -20,7 +20,7 @@ namespace ShopService.Data
 
         public DbSet<ShopService.Models.Product> Product { get; set; } = default!;
         public DbSet<ShopService.Models.Material> Material { get; set; } = default!;
-
+        public DbSet<ShopService.Models.ProductMapping> ProductMappings { get; set; } = default!;
         public DbSet<ShopService.Models.Order> Order { get; set; } = default!;
     }
 }

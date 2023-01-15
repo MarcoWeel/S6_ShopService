@@ -78,7 +78,7 @@ namespace ShopService.Services
         {
             using ShopServiceContext context = new();
 
-            var product = await context.Product.Include(m => m.Material).SingleOrDefaultAsync(m => m.Id == id);
+            var product = await context.Product.SingleOrDefaultAsync(m => m.Id == id);
 
             if (product != null)
                 return product;
@@ -117,7 +117,6 @@ namespace ShopService.Services
         {
             product.Id = Guid.NewGuid();
             using ShopServiceContext context = new();
-            product.Material = context.Material.FirstOrDefault(x => x.Id == product.Material.Id);
 
 
             var existing = await context.Product.SingleOrDefaultAsync(m => m.Name == product.Name && m.Id == product.Id);
