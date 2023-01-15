@@ -6,6 +6,55 @@ on:
 
 jobs:
 
+  buildtest:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build -t marcoweel/shop:test .
+    - name: Login to registry
+      run: docker login registry.wildradar.me -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Push the Docker image
+      run: docker push marcoweel/shop:test
+      
+  deploytest:
+    name: Deploytest
+    needs: buildtest
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions-hub/kubectl@master
+      env:
+        KUBE_HOST: ${{ secrets.KUBE_HOST_TESTENV }}
+        KUBE_CERTIFICATE: ${{ secrets.KUBE_CERTIFICATE_TESTENV }}
+        KUBE_TOKEN: ${{ secrets.KUBE_TOKEN_TESTENV }}
+      with:
+        args: rollout restart deployment shop-app shop-da-app
+    - name: deploy
+      run: echo "deploying started"
+    - name: Sleep for 15 seconds
+      run: sleep 15s
+      shell: bash
+
+  runtest:
+    name: runtest
+    needs: deploytest
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run JMeter Tests
+      uses: rbhadti94/apache-jmeter-action@v0.6.0
+      with:
+        testFilePath: './tests/test.jmx'
+        outputReportsFolder: results/
+    - name: Upload Results
+      if: success() || failure()
+      uses: actions/upload-artifact@v2
+      with:
+        name: jmeter-results
+        path: results/
+
   build:
 
     runs-on: ubuntu-latest
