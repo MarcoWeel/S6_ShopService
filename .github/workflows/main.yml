@@ -56,7 +56,7 @@ jobs:
         path: results/
 
   build:
-
+    needs: runtest
     runs-on: ubuntu-latest
 
     steps:
