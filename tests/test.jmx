@@ -979,7 +979,7 @@ int expectedCount = 7; //change it to your own expected value
 log.info(var2.toString());
 if(var2 &gt; expectedCount)
 	log.info(var2.toString());
-	//System.exit(1);</stringProp>
+	System.exit(1);</stringProp>
           <stringProp name="scriptLanguage">groovy</stringProp>
         </JSR223Sampler>
         <hashTree/>
