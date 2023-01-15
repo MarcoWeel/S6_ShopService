@@ -19,6 +19,9 @@ namespace ShopService.Services
         public void SubscribeToGlobal()
         {
             _messagingService.Subscribe("order", (BasicDeliverEventArgs ea, string queue, string request) => RouteCallback(ea, request), ExchangeType.Fanout, "*");
+            _messagingService.Subscribe("gdprexchange",
+                (BasicDeliverEventArgs ea, string queue, string request) => RouteCallback(ea, request),
+                ExchangeType.Topic, "*");
         }
 
         private static async void RouteCallback(BasicDeliverEventArgs ea, string request)
@@ -69,6 +72,16 @@ namespace ShopService.Services
                         await context.SaveChangesAsync();
                         break;
                     }
+                case "gdprDelete":
+                {
+                    var orders = await context.Order.Where(m => m.UserGuid == Guid.Parse(data)).ToListAsync();
+                    foreach (var order in orders)
+                    {
+                        context.Order.Remove(order);
+                    }
+                    await context.SaveChangesAsync();
+                    break;
+                }
                 default:
                     Console.WriteLine($"Request {request} Not Found");
                     break;
