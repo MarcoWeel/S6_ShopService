@@ -19,7 +19,7 @@ namespace ShopService.Services
         public void SubscribeToGlobal()
         {
             _messagingService.Subscribe("order", (BasicDeliverEventArgs ea, string queue, string request) => RouteCallback(ea, request), ExchangeType.Fanout, "*");
-            _messagingService.Subscribe("gdprexchange",
+            _messagingService.Subscribe("gdprExchange",
                 (BasicDeliverEventArgs ea, string queue, string request) => RouteCallback(ea, request),
                 ExchangeType.Topic, "*");
         }
