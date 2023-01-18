@@ -129,7 +129,7 @@ namespace ShopService.Services
         public async Task<Order> SaveOrderAsync(Order order)
         {
             order.Id = Guid.NewGuid();
-            using ShopServiceContext context = new();
+            using ShopServiceContext context = new(); 
 
 
             var existing = await context.Order.SingleOrDefaultAsync(m => m.Id == order.Id);
@@ -142,7 +142,32 @@ namespace ShopService.Services
             if (order == null)
                 return null;
 
+            List<ProductToInvoice> products = new List<ProductToInvoice>();
+            foreach (var mapping in order.Products)
+            {
+                var product = await context.Product.SingleOrDefaultAsync(x => x.Id == mapping.ProductId);
+                var material = await context.Material.SingleOrDefaultAsync(x => x.Id == product.MaterialId);
+                products.Add(new ProductToInvoice
+                {
+                    Description = product.Description,
+                    Id = product.Id,
+                    Material = material,
+                    Name = product.Name,
+                    StockAmount = product.StockAmount
+                });
+            }
+
+            var orderToInvoice = new OrderToInvoice()
+            {
+                Id = order.Id,
+                TotalPrice = order.TotalPrice,
+                UserGuid = order.UserGuid,
+                Products = products
+            };
+
+            var invoiceMessage = JsonConvert.SerializeObject(orderToInvoice);
             _messagingService.Publish("order", "order-messaging", "addOrder", "addOrder", Encoding.UTF8.GetBytes(response));
+            _messagingService.Publish("order", "order-messaging", "addOrderToInvoice", "addOrderToInvoice", Encoding.UTF8.GetBytes(orderToInvoice));
 
             return order;
         }
