@@ -158,7 +158,15 @@ namespace ShopService.Services
                 if (context.Product.Any(x => x.Id == mapping.ProductId))
                 {
                     product = await context.Product.SingleOrDefaultAsync(x => x.Id == mapping.ProductId);
-                    material = await context.Material.SingleOrDefaultAsync(x => x.Id == product.MaterialId);
+                    if (context.Material.Any(x => x.Id == mapping.ProductId))
+                    {
+                        material = await context.Material.SingleOrDefaultAsync(x => x.Id == product.MaterialId);
+                    }
+                    else
+                    {
+                        material = _materialService.GetMaterialAsync(product.MaterialId).Result;
+                    }
+                    
                 }
                 else
                 {
