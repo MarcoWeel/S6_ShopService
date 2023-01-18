@@ -167,7 +167,7 @@ namespace ShopService.Services
 
             var invoiceMessage = JsonConvert.SerializeObject(orderToInvoice);
             _messagingService.Publish("order", "order-messaging", "addOrder", "addOrder", Encoding.UTF8.GetBytes(response));
-            _messagingService.Publish("order", "order-messaging", "addOrderToInvoice", "addOrderToInvoice", Encoding.UTF8.GetBytes(orderToInvoice));
+            _messagingService.Publish("order", "order-messaging", "addOrderToInvoice", "addOrderToInvoice", Encoding.UTF8.GetBytes(invoiceMessage));
 
             return order;
         }
