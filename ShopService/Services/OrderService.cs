@@ -165,10 +165,11 @@ namespace ShopService.Services
                     product = _productService.GetProductAsync(mapping.ProductId).Result;
                     material = _materialService.GetMaterialAsync(product.MaterialId).Result;
                 }
+                material.Id = Guid.NewGuid();
                 products.Add(new ProductToInvoice
                 {
                     Description = product.Description,
-                    Id = product.Id,
+                    Id = Guid.NewGuid(),
                     Material = material,
                     Name = product.Name,
                     StockAmount = product.StockAmount
