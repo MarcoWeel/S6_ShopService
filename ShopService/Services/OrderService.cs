@@ -12,9 +12,13 @@ namespace ShopService.Services
     public class OrderService : IOrderService
     {
         private readonly IMessagingService _messagingService;
-        public OrderService(IMessagingService messagingService)
+        private readonly IProductService _productService;
+        private readonly IMaterialService _materialService;
+        public OrderService(IMessagingService messagingService, IMaterialService materialService, IProductService productService)
         {
             _messagingService = messagingService;
+            _materialService = materialService;
+            _productService = productService;
         }
         public void SubscribeToGlobal()
         {
@@ -50,7 +54,7 @@ namespace ShopService.Services
                 case "deleteOrder":
                     {
                         Guid id = Guid.Parse(data);
-                        Order order = await context.Order.Include(x=>x.Products).SingleOrDefaultAsync(m => m.Id == id);
+                        Order order = await context.Order.Include(x => x.Products).SingleOrDefaultAsync(m => m.Id == id);
                         if (order == null)
                             return;
                         context.Order.Remove(order);
@@ -73,15 +77,15 @@ namespace ShopService.Services
                         break;
                     }
                 case "gdprDelete":
-                {
-                    var orders = await context.Order.Where(m => m.UserGuid == Guid.Parse(data)).ToListAsync();
-                    foreach (var order in orders)
                     {
-                        context.Order.Remove(order);
+                        var orders = await context.Order.Where(m => m.UserGuid == Guid.Parse(data)).ToListAsync();
+                        foreach (var order in orders)
+                        {
+                            context.Order.Remove(order);
+                        }
+                        await context.SaveChangesAsync();
+                        break;
                     }
-                    await context.SaveChangesAsync();
-                    break;
-                }
                 default:
                     Console.WriteLine($"Request {request} Not Found");
                     break;
@@ -133,7 +137,7 @@ namespace ShopService.Services
             {
                 mapping.Id = Guid.NewGuid();
             }
-            using ShopServiceContext context = new(); 
+            using ShopServiceContext context = new();
 
 
             var existing = await context.Order.SingleOrDefaultAsync(m => m.Id == order.Id);
@@ -149,8 +153,18 @@ namespace ShopService.Services
             List<ProductToInvoice> products = new List<ProductToInvoice>();
             foreach (var mapping in order.Products)
             {
-                var product = await context.Product.SingleOrDefaultAsync(x => x.Id == mapping.ProductId);
-                var material = await context.Material.SingleOrDefaultAsync(x => x.Id == product.MaterialId);
+                Material material;
+                Product product;
+                if (context.Product.Any(x => x.Id == mapping.ProductId))
+                {
+                    product = await context.Product.SingleOrDefaultAsync(x => x.Id == mapping.ProductId);
+                    material = await context.Material.SingleOrDefaultAsync(x => x.Id == product.MaterialId);
+                }
+                else
+                {
+                    product = _productService.GetProductAsync(mapping.ProductId).Result;
+                    material = _materialService.GetMaterialAsync(product.MaterialId).Result;
+                }
                 products.Add(new ProductToInvoice
                 {
                     Description = product.Description,
@@ -170,7 +184,7 @@ namespace ShopService.Services
             };
 
             var invoiceMessage = JsonConvert.SerializeObject(orderToInvoice);
-            _messagingService.Publish("order", "order-messaging", "addOrder", "addOrder", Encoding.UTF8.GetBytes(response));
+            _messagingService.Publish("order-data", "order-messaging", "addOrder", "addOrder", Encoding.UTF8.GetBytes(response));
             _messagingService.Publish("order", "order-messaging", "addOrderToInvoice", "addOrderToInvoice", Encoding.UTF8.GetBytes(invoiceMessage));
 
             return order;
