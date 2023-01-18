@@ -129,6 +129,10 @@ namespace ShopService.Services
         public async Task<Order> SaveOrderAsync(Order order)
         {
             order.Id = Guid.NewGuid();
+            foreach (var mapping in order.Products)
+            {
+                mapping.Id = Guid.NewGuid();
+            }
             using ShopServiceContext context = new(); 
 
 
